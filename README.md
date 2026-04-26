@@ -89,3 +89,6 @@ Output:
 ## Author
 
 Arpit Kumar
+
+## License
+This project is licensed under the MIT License.
