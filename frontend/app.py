@@ -226,9 +226,10 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     gemini_key = st.text_input(
-        "Gemini API Key", type="password",
-        placeholder="AIza...", label_visibility="collapsed"
-    )
+    "Gemini API Key", type="password",
+    placeholder="AIza...", label_visibility="collapsed",
+    key="gemini_api_key_input"
+)
 
     if gemini_key and gemini_key.startswith("AIza"):
         st.markdown("""<div style='background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25);
@@ -292,7 +293,11 @@ st.markdown("""
 
 col1, col2 = st.columns([3, 1])
 with col1:
-    idea = st.text_input("Your Product Idea", placeholder="e.g. AI fitness app for college students in India...")
+    idea = st.text_input(
+    "Your Product Idea", 
+    placeholder="e.g. AI fitness app...",
+    key="product_idea_input"
+)
 with col2:
     st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
     generate_clicked = st.button("🚀 Generate Plan", use_container_width=True)
