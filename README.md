@@ -28,29 +28,6 @@ AI-powered Product Management Agent that generates:
 
 ---
 
-## Architecture
-
-```mermaid
-flowchart TD
-
-A[User] --> B[Streamlit Frontend]
-B --> C[FastAPI Backend]
-C --> D[Agent Executor]
-
-D --> E[Search Tool]
-D --> F[RAG Tool (FAISS + PDF)]
-D --> G[PRD Tool]
-D --> H[Planning Tool]
-D --> I[Critic Tool]
-
-D --> J[Gemini LLM]
-
-J --> C
-C --> B
-B --> A
-
-```
-
 ## Project Structure
 
 ```
