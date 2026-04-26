@@ -12,7 +12,7 @@ AI-powered Product Management Agent that generates:
 ## Tech Stack
 
 * LangChain
-* Groq LLM
+* Gemini LLM
 * FastAPI (Backend)
 * Streamlit (Frontend)
 * RAG (Retrieval-Augmented Generation)
