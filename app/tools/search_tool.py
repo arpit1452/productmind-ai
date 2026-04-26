@@ -3,8 +3,16 @@ from tavily import TavilyClient
 from app.core.llm_router import fast_llm
 import os
 
-# Initialize Tavily client
-client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+
+# ─── Initialize Tavily Client ──────────────────────────────────────────────────
+def get_tavily_client():
+    """Get Tavily client using key from Streamlit secrets or environment."""
+    try:
+        import streamlit as st
+        tavily_key = st.secrets.get("TAVILY_API_KEY", os.getenv("TAVILY_API_KEY", ""))
+    except Exception:
+        tavily_key = os.getenv("TAVILY_API_KEY", "")
+    return TavilyClient(api_key=tavily_key)
 
 
 @tool
@@ -16,6 +24,7 @@ def search_tool(query: str) -> str:
     Use this FIRST to ground research in real market data before calling other tools.
     """
     try:
+        client = get_tavily_client()
         res = client.search(query=query, max_results=5)
 
         raw_results = []

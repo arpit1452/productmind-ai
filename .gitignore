@@ -13,6 +13,7 @@ venv/
 
 # Streamlit
 .streamlit/
+.streamlit/secrets.toml
 
 # VS Code
 .vscode/
@@ -29,6 +30,7 @@ Thumbs.db
 *.sqlite3
 *.faiss
 *.pkl
+memory_index/
 
 # Uploaded files
 uploads/
