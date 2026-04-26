@@ -295,7 +295,7 @@ col1, col2 = st.columns([3, 1])
 with col1:
     idea = st.text_input(
     "Your Product Idea", 
-    placeholder="e.g. AI fitness app...",
+    placeholder="e.g. AI fitness app for college students in India...",
     key="product_idea_input"
 )
 with col2:
