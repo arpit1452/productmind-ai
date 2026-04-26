@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+
+# Environment variables
+.env
+
+# Streamlit
+.streamlit/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database / vector store
+*.db
+*.sqlite3
+*.faiss
+*.pkl
+
+# Uploaded files
+uploads/
+
+# Cache
+.cache/
+
+# PDF outputs (optional)
+*.pdf
