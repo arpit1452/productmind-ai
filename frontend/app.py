@@ -228,12 +228,13 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.session_state.gemini_key = st.text_input(
+    api_input = st.text_input(
         "Gemini API Key", type="password",
         placeholder="AIza...", label_visibility="collapsed",
-        value=st.session_state.gemini_key,
-        key="sidebar_gemini_key"
+        key="gemini_api_key_input"
     )
+    if api_input:
+        st.session_state.gemini_key = api_input
     gemini_key = st.session_state.gemini_key
 
     if gemini_key and gemini_key.startswith("AIza"):
