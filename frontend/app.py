@@ -32,6 +32,7 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="stSidebar"] {
     background: #0d0d14 !important;
     border-right: 1px solid rgba(255,255,255,0.06) !important;
+    overflow: hidden !important;
 }
 [data-testid="stSidebar"] .block-container { padding: 2rem 1.5rem !important; }
 .hero { text-align: center; padding: 3rem 0 2rem; }
