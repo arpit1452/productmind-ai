@@ -231,7 +231,7 @@ with st.sidebar:
     api_input = st.text_input(
         "Gemini API Key", type="password",
         placeholder="AIza...", label_visibility="collapsed",
-        key="gemini_api_key_input"
+        key="gemini_key_v3"
     )
     if api_input:
         st.session_state.gemini_key = api_input
