@@ -56,7 +56,7 @@ uvicorn app.main:app --reload
 ```
 streamlit run frontend/app.py
 ```
-
+* Live Demo Link: (https://appuctmind-ai-yzzn7voekyzgspvkjnanho.streamlit.app/)
 ---
 
 ## Example Use Case
