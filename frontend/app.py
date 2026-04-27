@@ -231,8 +231,7 @@ with st.sidebar:
     st.session_state.gemini_key = st.text_input(
         "Gemini API Key", type="password",
         placeholder="AIza...", label_visibility="collapsed",
-        value=st.session_state.gemini_key,
-        key="sidebar_gemini_key"
+        value=st.session_state.gemini_key
     )
     gemini_key = st.session_state.gemini_key
 
@@ -262,7 +261,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ─── Lock Screen ───────────────────────────────────────────────────────────────
+# ─── Lock Screen OR Main App ────────────────────────────────────────────────────
 if not gemini_key or not gemini_key.strip():
     st.markdown("""
     <div class="hero">
@@ -277,126 +276,114 @@ if not gemini_key or not gemini_key.strip():
         <a class="lock-link" href="https://aistudio.google.com/app/apikey" target="_blank">Get your free key →</a>
     </div>
     """, unsafe_allow_html=True)
-    st.stop()
 
-# ─── Main App ──────────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="hero">
-    <div class="hero-badge">⚡ Powered by Multi-Tool AI Agent</div>
-    <h1 class="hero-title">AI Product Manager</h1>
-    <p class="hero-sub">Transform any idea into a complete product plan in minutes.</p>
-</div>
-<div class="pipeline">
-    <span class="pipe-step">🔍 search_tool</span><span class="pipe-arrow">→</span>
-    <span class="pipe-step">📄 rag_tool</span><span class="pipe-arrow">→</span>
-    <span class="pipe-step">🧠 research_tool</span><span class="pipe-arrow">→</span>
-    <span class="pipe-step">📋 prd_tool</span><span class="pipe-arrow">→</span>
-    <span class="pipe-step">📊 planning_tool</span><span class="pipe-arrow">→</span>
-    <span class="pipe-step">🧪 critic_tool</span>
-</div>
-""", unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div class="hero">
+        <div class="hero-badge">⚡ Powered by Multi-Tool AI Agent</div>
+        <h1 class="hero-title">AI Product Manager</h1>
+        <p class="hero-sub">Transform any idea into a complete product plan in minutes.</p>
+    </div>
+    <div class="pipeline">
+        <span class="pipe-step">🔍 search_tool</span><span class="pipe-arrow">→</span>
+        <span class="pipe-step">📄 rag_tool</span><span class="pipe-arrow">→</span>
+        <span class="pipe-step">🧠 research_tool</span><span class="pipe-arrow">→</span>
+        <span class="pipe-step">📋 prd_tool</span><span class="pipe-arrow">→</span>
+        <span class="pipe-step">📊 planning_tool</span><span class="pipe-arrow">→</span>
+        <span class="pipe-step">🧪 critic_tool</span>
+    </div>
+    """, unsafe_allow_html=True)
 
-col1, col2 = st.columns([3, 1])
-with col1:
-    idea = st.text_input("Your Product Idea", placeholder="e.g. AI fitness app for college students in India...")
-with col2:
-    st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
-    generate_clicked = st.button("🚀 Generate Plan", use_container_width=True)
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        idea = st.text_input("Your Product Idea", placeholder="e.g. AI fitness app for college students in India...", key="main_idea_input")
+    with col2:
+        st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
+        generate_clicked = st.button("🚀 Generate Plan", use_container_width=True)
 
-with st.expander("📎 Attach a research PDF (optional)"):
-    uploaded_file = st.file_uploader("Upload PDF for additional context", type=["pdf"], label_visibility="visible")
-    if uploaded_file is not None:
-        try:
-            # Save PDF to temp location for RAG
-            import tempfile
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                tmp.write(uploaded_file.getvalue())
-                tmp_path = tmp.name
-            from app.rag.pdf_loader import load_pdf
-            load_pdf(tmp_path)
-            st.success("✅ PDF uploaded and indexed successfully!")
-        except Exception as e:
-            st.error(f"Error uploading PDF: {str(e)}")
-
-st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
-
-# ─── Generate ──────────────────────────────────────────────────────────────────
-if generate_clicked:
-    if not idea.strip():
-        st.warning("⚠️ Please enter a product idea first.")
-    else:
-        with st.spinner("🤖 Agent is working... This may take 2-3 minutes"):
+    with st.expander("📎 Attach a research PDF (optional)"):
+        uploaded_file = st.file_uploader("Upload PDF for additional context", type=["pdf"], label_visibility="visible", key="pdf_uploader")
+        if uploaded_file is not None:
             try:
-                start_time = time.time()
-
-                # ── Set API keys from user input + streamlit secrets ──
-                os.environ["GEMINI_API_KEY"] = gemini_key.strip()
-
-                # Tavily key from Streamlit secrets (set in deployment)
-                try:
-                    os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
-                except Exception:
-                    pass  # Will use existing env var if set
-
-                # ── Direct function call (no HTTP request needed) ──
-                from app.agents.pm_agent import run_agent
-                result = run_agent(idea)
-
-                elapsed = round(time.time() - start_time, 1)
-                output = result.get("output", "No output generated.")
-                tools_used = result.get("tools_used", [])
-                num_steps = result.get("num_steps", 0)
-                steps = result.get("steps", [])
-
-                st.success(f"✅ Generated successfully in {elapsed}s")
-
-                # Tools banner
-                if tools_used:
-                    tools_html = '<div class="tools-banner"><span class="tools-label">Tools used</span>'
-                    for t in tools_used:
-                        tools_html += f'<span class="tool-tag">{t}</span>'
-                    tools_html += f'<span style="margin-left:auto;font-family:DM Mono,monospace;font-size:0.7rem;color:#5a5768">{num_steps} steps · {elapsed}s</span>'
-                    tools_html += '</div>'
-                    st.markdown(tools_html, unsafe_allow_html=True)
-
-                # Output
-                st.markdown('<div class="output-card"><div class="output-content">', unsafe_allow_html=True)
-                st.markdown(output)
-                st.markdown('</div></div>', unsafe_allow_html=True)
-
-                # Download buttons
-                st.markdown("<div style='height: 1rem'></div>", unsafe_allow_html=True)
-                dl_col1, dl_col2 = st.columns(2)
-                with dl_col1:
-                    st.download_button(
-                        label="⬇️ Download as Markdown",
-                        data=output,
-                        file_name=f"product_plan_{idea[:25].replace(' ','_')}.md",
-                        mime="text/markdown",
-                        use_container_width=True
-                    )
-                with dl_col2:
-                    pdf_bytes = markdown_to_pdf(output, idea)
-                    st.download_button(
-                        label="📄 Download as PDF",
-                        data=pdf_bytes,
-                        file_name=f"product_plan_{idea[:25].replace(' ','_')}.pdf",
-                        mime="application/pdf",
-                        use_container_width=True
-                    )
-
-                # Intermediate steps
-                if steps:
-                    with st.expander(f"🔍 View intermediate steps ({len(steps)} tool calls)"):
-                        for i, step in enumerate(steps):
-                            st.markdown(f"**Step {i+1}: `{step.get('tool', 'unknown')}`**")
-                            inp = step.get('input', '')
-                            if isinstance(inp, dict):
-                                inp = json.dumps(inp, indent=2)
-                            st.code(str(inp)[:500], language="text")
-                            st.caption(step.get('output_preview', '')[:400])
-                            st.markdown("---")
-
+                import tempfile
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                    tmp.write(uploaded_file.getvalue())
+                    tmp_path = tmp.name
+                from app.rag.pdf_loader import load_pdf
+                load_pdf(tmp_path)
+                st.success("✅ PDF uploaded and indexed successfully!")
             except Exception as e:
-                st.error(f"❌ Error: {str(e)}")
-                st.info("💡 Check your Gemini API key and try again.")
+                st.error(f"Error uploading PDF: {str(e)}")
+
+    st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
+
+    if generate_clicked:
+        if not idea.strip():
+            st.warning("⚠️ Please enter a product idea first.")
+        else:
+            with st.spinner("🤖 Agent is working... This may take 2-3 minutes"):
+                try:
+                    start_time = time.time()
+                    os.environ["GEMINI_API_KEY"] = gemini_key.strip()
+                    try:
+                        os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
+                    except Exception:
+                        pass
+
+                    from app.agents.pm_agent import run_agent
+                    result = run_agent(idea)
+
+                    elapsed = round(time.time() - start_time, 1)
+                    output = result.get("output", "No output generated.")
+                    tools_used = result.get("tools_used", [])
+                    num_steps = result.get("num_steps", 0)
+                    steps = result.get("steps", [])
+
+                    st.success(f"✅ Generated successfully in {elapsed}s")
+
+                    if tools_used:
+                        tools_html = '<div class="tools-banner"><span class="tools-label">Tools used</span>'
+                        for t in tools_used:
+                            tools_html += f'<span class="tool-tag">{t}</span>'
+                        tools_html += f'<span style="margin-left:auto;font-family:DM Mono,monospace;font-size:0.7rem;color:#5a5768">{num_steps} steps · {elapsed}s</span>'
+                        tools_html += '</div>'
+                        st.markdown(tools_html, unsafe_allow_html=True)
+
+                    st.markdown('<div class="output-card"><div class="output-content">', unsafe_allow_html=True)
+                    st.markdown(output)
+                    st.markdown('</div></div>', unsafe_allow_html=True)
+
+                    st.markdown("<div style='height: 1rem'></div>", unsafe_allow_html=True)
+                    dl_col1, dl_col2 = st.columns(2)
+                    with dl_col1:
+                        st.download_button(
+                            label="⬇️ Download as Markdown",
+                            data=output,
+                            file_name=f"product_plan_{idea[:25].replace(' ','_')}.md",
+                            mime="text/markdown",
+                            use_container_width=True
+                        )
+                    with dl_col2:
+                        pdf_bytes = markdown_to_pdf(output, idea)
+                        st.download_button(
+                            label="📄 Download as PDF",
+                            data=pdf_bytes,
+                            file_name=f"product_plan_{idea[:25].replace(' ','_')}.pdf",
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+
+                    if steps:
+                        with st.expander(f"🔍 View intermediate steps ({len(steps)} tool calls)"):
+                            for i, step in enumerate(steps):
+                                st.markdown(f"**Step {i+1}: `{step.get('tool', 'unknown')}`**")
+                                inp = step.get('input', '')
+                                if isinstance(inp, dict):
+                                    inp = json.dumps(inp, indent=2)
+                                st.code(str(inp)[:500], language="text")
+                                st.caption(step.get('output_preview', '')[:400])
+                                st.markdown("---")
+
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
+                    st.info("💡 Check your Gemini API key and try again.")
