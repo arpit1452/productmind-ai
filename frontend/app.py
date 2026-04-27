@@ -4,6 +4,10 @@ import time
 import os
 import re
 
+if "app_initialized" not in st.session_state:
+    st.session_state.app_initialized = True
+    st.session_state.gemini_key = ""
+
 # ─── Page Config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="AI Product Manager Agent",
@@ -213,9 +217,6 @@ def markdown_to_pdf(markdown_text: str, idea: str) -> bytes:
 
 
 # ─── Sidebar: API Key (rendered ONCE using session_state) ──────────────────────
-if "gemini_key" not in st.session_state:
-    st.session_state.gemini_key = ""
-
 with st.sidebar:
     st.markdown("""
     <div style='padding: 0.5rem 0 1.5rem'>
@@ -228,14 +229,15 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
+    # WITH THIS:
     api_input = st.text_input(
         "Gemini API Key", type="password",
         placeholder="AIza...", label_visibility="collapsed",
-        key="gemini_key_v3"
+        key="gemini_key_input"
     )
-    if api_input:
-        st.session_state.gemini_key = api_input
+    st.session_state.gemini_key = api_input if api_input else st.session_state.get("gemini_key", "")
     gemini_key = st.session_state.gemini_key
+
 
     if gemini_key and gemini_key.startswith("AIza"):
         st.markdown("""<div style='background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25);
